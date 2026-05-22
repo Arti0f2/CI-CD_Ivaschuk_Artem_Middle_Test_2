@@ -1,4 +1,4 @@
-# Recipe Project - CI/CD Demo
+# Recipe Project - CI/CD 
 
 Проект демонструє дотримання основних принципів Continuous Integration/Continuous Deployment за допомогою Django, Git та GitHub Actions.
 
@@ -14,7 +14,6 @@
 1. Клонуйте репозиторій:
 ```bash
 git clone https://github.com/Arti0f2/CI-CD_Ivaschuk_Artem_Middle_Test_2.git
-cd CI-CD_Ivaschuk_Artem_Middle_Test_2
 ```
 
 2. Створіть віртуальне середовище:
@@ -108,8 +107,6 @@ ALLOWED_HOSTS=localhost,127.0.0.1
 - `main`: Продакшн версія
 - `develop`: Розробка нових функцій
 
-### Коміти
-Для кожної функції/методу створюється окремий коміт з описовою назвою.
 
 ## CI/CD Pipeline
 
@@ -135,8 +132,5 @@ ALLOWED_HOSTS=localhost,127.0.0.1
 2. Налаштуйте environment variables на Heroku
 3. Налаштуйте GitHub secrets для HEROKU_API_KEY та HEROKU_APP_NAME
 
-## Автори
-
-Іващук Артем
 
 
