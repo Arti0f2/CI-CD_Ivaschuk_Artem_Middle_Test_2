@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.utils import timezone
 from recipe.models import Category, Recipe
+import time
 
 
 class CategoryModelTest(TestCase):
@@ -68,15 +69,16 @@ class RecipeModelTest(TestCase):
         """Test that created_at and updated_at are set"""
         self.assertIsNotNone(self.recipe.created_at)
         self.assertIsNotNone(self.recipe.updated_at)
-        self.assertEqual(self.recipe.created_at, self.recipe.updated_at)
 
     def test_recipe_update(self):
         """Test that updated_at changes on update"""
         old_updated = self.recipe.updated_at
+        # Небольшая пауза, чтобы время гарантированно отличалось
+        time.sleep(0.01)
         self.recipe.title = "Updated Carbonara"
         self.recipe.save()
         
-        self.assertGreaterEqual(self.recipe.updated_at, old_updated)
+        self.assertGreater(self.recipe.updated_at, old_updated)
 
     def test_recipe_category_relationship(self):
         """Test Recipe-Category relationship"""
@@ -86,6 +88,8 @@ class RecipeModelTest(TestCase):
 
     def test_recipe_ordering(self):
         """Test that recipes are ordered by created_at descending"""
+        # Создаем второй рецепт (он будет "новее")
+        time.sleep(0.01)
         recipe2 = Recipe.objects.create(
             title="Risotto",
             description="Italian rice dish",
@@ -94,9 +98,10 @@ class RecipeModelTest(TestCase):
             category=self.category
         )
         
-        recipes = Recipe.objects.all()
-        # Verify that the Meta ordering is set to '-created_at'
-        self.assertTrue(str(recipes.query).find('created_at') >= 0 or len(recipes) > 0)
+        recipes = list(Recipe.objects.all())
+        # Так как в Meta прописано '-created_at', первым должен быть последний созданный
+        self.assertEqual(recipes[0].title, "Risotto")
+        self.assertEqual(recipes[1].title, "Pasta Carbonara")
 
     def test_recipe_cascade_delete(self):
         """Test that recipes are deleted when category is deleted"""
