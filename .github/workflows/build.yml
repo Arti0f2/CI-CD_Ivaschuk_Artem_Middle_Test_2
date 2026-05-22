@@ -1,0 +1,76 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        python-version: ['3.9', '3.10', '3.11']
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Run migrations
+      run: |
+        python manage.py migrate
+    
+    - name: Run tests
+      run: |
+        python manage.py test
+    
+    - name: Run pytest
+      run: |
+        pytest --verbose
+    
+    - name: Check code style
+      run: |
+        pip install flake8
+        flake8 recipe/ project_recipe/ --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 recipe/ project_recipe/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Deploy to Heroku
+      env:
+        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
+      run: |
+        if [ -n "$HEROKU_API_KEY" ] && [ -n "$HEROKU_APP_NAME" ]; then
+          echo "Deploying to Heroku..."
+          # Deployment steps would go here
+        else
+          echo "Heroku credentials not configured. Skipping deployment."
+        fi
